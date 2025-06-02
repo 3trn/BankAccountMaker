@@ -8,7 +8,7 @@
         private string accountType;
         private string password;
 
-        public Account(String name,String accountType, String password)
+        public Account(String name, String password, String accountType)
         {
             this.accountNumber = nextAccountNumber++;
             this.name = name;
@@ -22,5 +22,16 @@
                    $"Name: {name}\n" +
                    $"Account Type: {accountType}\n";
         }
+
+        public string GetName()
+        {
+            return name;
+        }
+
+        public bool VerifyPassword(string input)
+        {
+            return password == input;
+        }
+
     }
 }
