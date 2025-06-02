@@ -51,10 +51,10 @@ namespace BankingSimulation
                                         Console.WriteLine(foundAccount.ToString());
                                         break;
                                     case 2:
-                                        Console.WriteLine("BALANCE: £" + foundAccount.GetBalance());
+                                        Console.WriteLine($"BALANCE: £ {foundAccount.GetBalance()} \n");
                                         break;
                                     case 3:
-                                        Console.WriteLine("BALANCE: £" + foundAccount.GetBalance());
+                                        Console.WriteLine($"BALANCE: £ {foundAccount.GetBalance()} \n");
                                         if (foundAccount.GetBalance() <= 0)
                                         {
                                             Console.WriteLine("CANNOT WITHDRAW DUE TO INSUFFICIENT FUNDS");
@@ -75,12 +75,13 @@ namespace BankingSimulation
                                         
                                         break;
                                     case 4:
-                                        Console.WriteLine("BALANCE: £" + foundAccount.GetBalance());
+                                        Console.WriteLine($"BALANCE: £ {foundAccount.GetBalance()} \n");
+                                        Console.WriteLine($"CASH: £ {cash} \n");
                                         Console.WriteLine("--- DEPOSIT AMOUNT ---");
                                         int depositAmount = Convert.ToInt32(Console.ReadLine());
                                         if (depositAmount > cash)
                                         {
-                                            Console.WriteLine("YOU CANNOT WITHDRAW THIS AMOUNT");
+                                            Console.WriteLine("YOU CANNOT DEPOSIT THIS AMOUNT");
                                         }
                                         else
                                         {
@@ -88,7 +89,38 @@ namespace BankingSimulation
                                         }
                                         break;
                                     case 5:
-                                        Console.WriteLine(foundAccount.GetBalance());
+                                        Console.WriteLine("--- TRANSFER MONEY ---");
+                                        Console.WriteLine("ENTER RECIPIENT'S NAME:");
+                                        string recipientName = Console.ReadLine().ToLower();
+
+                                        var recipientAccount = accounts.FirstOrDefault(a => a.GetName() == recipientName);
+
+                                        if (recipientAccount == null)
+                                        {
+                                            Console.WriteLine("RECIPIENT NOT FOUND");
+                                            break;
+                                        }
+
+                                        Console.WriteLine("--- TRANSFER AMOUNT ---");
+                                        double transferAmount = Convert.ToDouble(Console.ReadLine());
+
+                                        if (transferAmount <= 0)
+                                        {
+                                            Console.WriteLine("INVALID AMOUNT");
+                                            break;
+                                        }
+
+                                        if (foundAccount.GetBalance() < transferAmount)
+                                        {
+                                            Console.WriteLine("INSUFFICIENT FUNDS TO TRANSFER");
+                                            break;
+                                        }
+
+                                        foundAccount.WithdrawBalance(transferAmount);
+                                        recipientAccount.DepositBalance(transferAmount);
+
+                                        Console.WriteLine($"TRANSFERRED £ {transferAmount} TO {recipientName}");
+                                        Console.WriteLine($"BALANCE: £ {foundAccount.GetBalance()} \n");
                                         break;
                                     case 6:
                                         logInRunning = false;
