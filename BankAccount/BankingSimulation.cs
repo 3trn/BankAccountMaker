@@ -1,9 +1,12 @@
-﻿using System.Security.Cryptography.X509Certificates;
+﻿using AccountBlueprint;
+using System.Security.Cryptography.X509Certificates;
+using System.Transactions;
 
 namespace BankingSimulation
 {
     class Bank
     {
+        public static double cash = 100;
         static void Main (String [] args)
         {
             List<AccountBlueprint.Account> accounts = new List<AccountBlueprint.Account>();
@@ -20,19 +23,78 @@ namespace BankingSimulation
                 {
                     case 1:
                         Console.WriteLine("-- LOGIN ---\n" +
-                        "ENTER YOUR FULL NAME\n");
+                        "ENTER YOUR FULL NAME");
                         string nameInput = Console.ReadLine().ToLower();
-                        Console.WriteLine("ENTER YOUR PASSWORD\n");
+                        Console.WriteLine("\nENTER YOUR PASSWORD");
                         string passwordInput = Console.ReadLine();
                         Console.WriteLine("-----------------------\n");
-
                         var foundAccount = accounts.FirstOrDefault(a => a.GetName() == nameInput && a.VerifyPassword(passwordInput));
 
                         if (foundAccount != null)
                         {
-                            Console.WriteLine("--- LOGIN SUCCESSFUL ---\n");
-                            Console.WriteLine(foundAccount.ToString());
-                            Console.WriteLine("---------------\n");
+                            bool logInRunning = true;
+                            Console.WriteLine("--- LOGIN SUCCESSFUL ---\n" + "\n-----------------------\n");
+                            while (logInRunning)
+                            {
+                                Console.WriteLine("-- LOGIN MENU ---\n" +
+                                "\n1) ACCOUNT DETAILS\n" +
+                                "2) CHECK BALANCE\n" +
+                                "3) WITHDRAW\n" +
+                                "4) DEPOSIT\n" +
+                                "5) TRANSFER\n" +
+                                "6) LOG OUT\n" +
+                                "-----------------------\n");
+                                int logInMenuNavigationInput = Convert.ToInt32(Console.ReadLine());
+                                switch (logInMenuNavigationInput)
+                                {
+                                    case 1:
+                                        Console.WriteLine(foundAccount.ToString());
+                                        break;
+                                    case 2:
+                                        Console.WriteLine("BALANCE: £" + foundAccount.GetBalance());
+                                        break;
+                                    case 3:
+                                        Console.WriteLine("BALANCE: £" + foundAccount.GetBalance());
+                                        if (foundAccount.GetBalance() <= 0)
+                                        {
+                                            Console.WriteLine("CANNOT WITHDRAW DUE TO INSUFFICIENT FUNDS");
+                                        } 
+                                        else
+                                        {
+                                            Console.WriteLine("--- WITHDRAW AMOUNT ---");
+                                            int withdrawnAmount = Convert.ToInt32(Console.ReadLine());
+                                            if (withdrawnAmount > foundAccount.GetBalance())
+                                            {
+                                                Console.WriteLine("YOU CANNOT WITHDRAW THIS AMOUNT");
+                                            } 
+                                            else
+                                            {
+                                                transactionProcessor(foundAccount, withdrawnAmount, 0, "Withdrawing");
+                                            }
+                                        }
+                                        
+                                        break;
+                                    case 4:
+                                        Console.WriteLine("BALANCE: £" + foundAccount.GetBalance());
+                                        Console.WriteLine("--- DEPOSIT AMOUNT ---");
+                                        int depositAmount = Convert.ToInt32(Console.ReadLine());
+                                        if (depositAmount > cash)
+                                        {
+                                            Console.WriteLine("YOU CANNOT WITHDRAW THIS AMOUNT");
+                                        }
+                                        else
+                                        {
+                                            transactionProcessor(foundAccount, 0, depositAmount, "Depositing");
+                                        }
+                                        break;
+                                    case 5:
+                                        Console.WriteLine(foundAccount.GetBalance());
+                                        break;
+                                    case 6:
+                                        logInRunning = false;
+                                        break;
+                                }
+                            }
                         }
                         else
                         {
@@ -64,5 +126,23 @@ namespace BankingSimulation
                 }
             }
         }
+        public static void transactionProcessor(AccountBlueprint.Account account, double withdrawAmount, double depositAmount, string transactionType)
+        {
+            if (transactionType == "Withdrawing")
+            {
+                if (account.WithdrawBalance(withdrawAmount))
+                {
+                    cash += withdrawAmount;
+                    Console.WriteLine($"WITHDREW {withdrawAmount}, BANK CASH: {cash}, NEW BALANCE: {account.GetBalance()}");
+                }
+            }
+            else if (transactionType == "Depositing")
+            {
+                account.DepositBalance(depositAmount);
+                cash -= depositAmount;
+                Console.WriteLine($"DEPOSITED {depositAmount}, BANK CASH: {cash}, NEW BALANCE: {account.GetBalance()}");
+            }
+        }
+
     }
 }
